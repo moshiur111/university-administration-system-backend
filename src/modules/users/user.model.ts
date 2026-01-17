@@ -40,7 +40,7 @@ const userSchema = new Schema<IUser, UserModel>(
       enum: {
         values: Object.values(USER_STATUS),
         message: `Status must be one of: ${Object.values(USER_STATUS).join(
-          ", "
+          ", ",
         )}`,
       },
       default: USER_STATUS.IN_PROGRESS,
@@ -52,7 +52,7 @@ const userSchema = new Schema<IUser, UserModel>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Hash password befor save
@@ -61,14 +61,31 @@ userSchema.pre("save", async function () {
 
   this.password = await bcrypt.hash(
     this.password,
-    Number(config.bcrypt_salt_rounds)
+    Number(config.bcrypt_salt_rounds),
   );
 });
+
+// Check if user exists by custom ID
+userSchema.statics.isUserExistsByCustomId = async function (id: string) {
+  return this.findOne({ id }).select("+password");
+};
+
+// Check if use is deleted
+userSchema.statics.isUserDeleted = async function (id: string) {
+  const user = await this.isUserExistsByCustomId(id);
+  return Boolean(user?.isDeleted);
+};
+
+// Get user status
+userSchema.statics.userStatus = async function (id: string) {
+  const user = await this.isUserExistsByCustomId(id);
+  return user?.status === USER_STATUS.BLOCKED;
+};
 
 // Static method for password comparison
 userSchema.statics.isPasswordMatched = async function (
   plainTextPassword: string,
-  hashedPassword: string
+  hashedPassword: string,
 ) {
   return bcrypt.compare(plainTextPassword, hashedPassword);
 };

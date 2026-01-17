@@ -15,6 +15,10 @@ export interface IUser {
 export interface UserModel extends Model<IUser> {
   isPasswordMatched(
     plainTextPassword: string,
-    hashedPassword: string
+    hashedPassword: string,
   ): Promise<boolean>;
+
+  isUserExistsByCustomId(id: string): Promise<IUser>;
+  isUserDeleted(id: string): Promise<boolean>;
+  userStatus(id: string): Promise<IUser['status']>
 }

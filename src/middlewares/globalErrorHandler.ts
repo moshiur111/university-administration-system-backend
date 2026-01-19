@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response } from 'express';
 
 interface ICustomError extends Error {
   statusCode?: number;
@@ -6,12 +6,12 @@ interface ICustomError extends Error {
 
 const globalErrorHandler = (
   err: ICustomError,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction,
 ) => {
   const statusCode = err.statusCode || 500;
-  const message = err.message || "Something went wrong";
+  const message = err.message || 'Something went wrong';
 
   res.status(statusCode).json({
     success: false,

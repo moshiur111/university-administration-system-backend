@@ -1,14 +1,14 @@
-import app from "./app";
-import config from "./config";
-import { Server } from "http";
-import connectDB from "./config/database";
+import app from './app';
+import config from './config';
+import { Server } from 'http';
+import connectDB from './config/database';
 
 let server: Server;
 
 const startServer = async () => {
   try {
     await connectDB();
-    
+
     server = app.listen(config.port, () => {
       console.log(`Server is running or port ${config.port}`);
     });
@@ -19,8 +19,8 @@ const startServer = async () => {
 
 startServer();
 
-process.on("unhandledRejection", (err) => {
-  console.error("🚫 Unhandled Rejection detected");
+process.on('unhandledRejection', (err) => {
+  console.error('🚫 Unhandled Rejection detected');
   console.error(err);
   if (server) {
     server.close(() => process.exit(1));
@@ -29,8 +29,8 @@ process.on("unhandledRejection", (err) => {
   }
 });
 
-process.on("uncaughtException", (err) => {
-  console.error("🚫 Uncaught Exception detected");
+process.on('uncaughtException', (err) => {
+  console.error('🚫 Uncaught Exception detected');
   console.error(err);
   process.exit(1);
 });

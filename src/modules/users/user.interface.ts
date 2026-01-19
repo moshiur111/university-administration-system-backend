@@ -1,5 +1,5 @@
-import { Model } from "mongoose";
-import { UserRoles, UserStatus } from "./user.constant";
+import { Model } from 'mongoose';
+import { UserRoles, UserStatus } from './user.constant';
 
 export interface IUser {
   id: string;
@@ -20,5 +20,5 @@ export interface UserModel extends Model<IUser> {
 
   isUserExistsByCustomId(id: string): Promise<IUser>;
   isUserDeleted(id: string): Promise<boolean>;
-  userStatus(id: string): Promise<IUser['status']>
+  userStatus(id: string): Promise<IUser['status']>;
 }

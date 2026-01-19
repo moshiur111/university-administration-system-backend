@@ -1,6 +1,7 @@
 # University Administration System – Backend
 
 ## 📌 Overview
+
 This project is a production-style backend system designed to manage real university operations such as students, faculty, courses, departments, and user access control.
 
 The goal of this project is to demonstrate clean backend architecture, scalable design, and professional development practices using Node.js and TypeScript.
@@ -8,6 +9,7 @@ The goal of this project is to demonstrate clean backend architecture, scalable 
 ---
 
 ## 🚀 Planned Features
+
 - Authentication & role-based access control (Admin, Faculty, Student)
 - Student management
 - Faculty & department management
@@ -19,6 +21,7 @@ The goal of this project is to demonstrate clean backend architecture, scalable 
 ---
 
 ## 🛠 Tech Stack
+
 - Node.js
 - Express.js
 - TypeScript
@@ -28,6 +31,7 @@ The goal of this project is to demonstrate clean backend architecture, scalable 
 ---
 
 ## 🧱 Project Structure
+
 ```text
 src/
 ├── config/
@@ -37,3 +41,4 @@ src/
 ├── utils/
 ├── app.ts
 ├── server.ts
+```

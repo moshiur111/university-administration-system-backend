@@ -1,8 +1,8 @@
-import { model, Schema } from "mongoose";
-import { IUser, UserModel } from "./user.interface";
-import { USER_ROLES, USER_STATUS } from "./user.constant";
-import bcrypt from "bcrypt";
-import config from "../../config";
+import { model, Schema } from 'mongoose';
+import { IUser, UserModel } from './user.interface';
+import { USER_ROLES, USER_STATUS } from './user.constant';
+import bcrypt from 'bcrypt';
+import config from '../../config';
 
 const userSchema = new Schema<IUser, UserModel>(
   {
@@ -40,7 +40,7 @@ const userSchema = new Schema<IUser, UserModel>(
       enum: {
         values: Object.values(USER_STATUS),
         message: `Status must be one of: ${Object.values(USER_STATUS).join(
-          ", ",
+          ', ',
         )}`,
       },
       default: USER_STATUS.IN_PROGRESS,
@@ -56,8 +56,8 @@ const userSchema = new Schema<IUser, UserModel>(
 );
 
 // Hash password befor save
-userSchema.pre("save", async function () {
-  if (!this.isModified("password")) return;
+userSchema.pre('save', async function () {
+  if (!this.isModified('password')) return;
 
   this.password = await bcrypt.hash(
     this.password,
@@ -67,7 +67,7 @@ userSchema.pre("save", async function () {
 
 // Check if user exists by custom ID
 userSchema.statics.isUserExistsByCustomId = async function (id: string) {
-  return this.findOne({ id }).select("+password");
+  return this.findOne({ id }).select('+password');
 };
 
 // Check if use is deleted
@@ -90,4 +90,4 @@ userSchema.statics.isPasswordMatched = async function (
   return bcrypt.compare(plainTextPassword, hashedPassword);
 };
 
-export const User = model<IUser, UserModel>("User", userSchema);
+export const User = model<IUser, UserModel>('User', userSchema);

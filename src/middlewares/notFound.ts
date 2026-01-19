@@ -1,9 +1,9 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from 'express';
 
-const notFound = (req: Request, res: Response, next: NextFunction) => {
+const notFound = (req: Request, res: Response, _next: NextFunction) => {
   res.status(404).json({
     success: false,
-    message: "API Not Found",
+    message: 'API Not Found',
   });
 };
 

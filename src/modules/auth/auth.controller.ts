@@ -1,5 +1,5 @@
 import catchAsync from "../../utils/catchAsync";
-import { AuthServices } from "../auth/auth.service";
+import { AuthServices } from "./auth.service";
 
 const loginUser = catchAsync(async (req, res) => {
   const result = await AuthServices.loginUser(req.body);

@@ -11,6 +11,7 @@ const config = {
   nodeEnv: process.env.NODE_ENV || 'development',
   databaseUrl: process.env.DATABASE_URL,
   bcrypt_salt_rounds: process.env.BCRYPT_SALT_ROUNDS,
+  default_password: process.env.DEFAULT_PASSWORD,
   jwtAccessSecret: process.env.JWT_ACCESS_SECRET as string,
   jwtAccessExpiresIn: process.env
     .JWT_ACCESS_EXPIRES_IN as SignOptions['expiresIn'],

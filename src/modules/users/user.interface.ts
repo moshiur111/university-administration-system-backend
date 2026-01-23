@@ -3,7 +3,6 @@ import { UserRoles, UserStatus } from './user.constant';
 
 export interface IUser {
   id: string;
-  email: string;
   password: string;
   role: UserRoles;
   needsPasswordChange?: boolean;

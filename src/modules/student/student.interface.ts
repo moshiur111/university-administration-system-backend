@@ -6,6 +6,22 @@ export type TUserName = {
   lastName: string;
 };
 
+export type TGuardian = {
+  fatherName: string;
+  fatherOccupation: string;
+  fatherContactNo: string;
+  motherName: string;
+  motherOccupation: string;
+  motherContactNo: string;
+};
+
+export type TLocalGuardian = {
+  name: string;
+  occupation: string;
+  contactNo: string;
+  address: string;
+};
+
 export type TGender = 'male' | 'female';
 
 export type TBloodGroup =
@@ -18,19 +34,22 @@ export type TBloodGroup =
   | 'O+'
   | 'O-';
 
-export interface IAdmin {
+export interface IStudent {
   id: string;
   user: Types.ObjectId;
-  designation: string;
   name: TUserName;
   gender: TGender;
   dateOfBirth?: Date;
   email: string;
+  profileImg?: string;
   contactNo: string;
   emergencyContactNo: string;
-  bloodGroup: TBloodGroup;
+  bloodGroup?: TBloodGroup;
   presentAddress: string;
   permanentAddress: string;
-  profileImg?: string;
+  guardian: TGuardian;
+  localGuardian: TLocalGuardian;
+  admissionSemester: Types.ObjectId;
+  academicDepartment: Types.ObjectId;
   isDeleted: boolean;
 }

@@ -8,7 +8,15 @@ export type TUserName = {
 
 export type TGender = 'male' | 'female';
 
-export type TBloodGroup = 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
+export type TBloodGroup =
+  | 'A+'
+  | 'A-'
+  | 'B+'
+  | 'B-'
+  | 'AB+'
+  | 'AB-'
+  | 'O+'
+  | 'O-';
 
 export interface IAdmin {
   id: string;
@@ -25,4 +33,4 @@ export interface IAdmin {
   permanentAddress: string;
   profileImg?: string;
   isDeleted: boolean;
-};
+}

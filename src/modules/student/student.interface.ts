@@ -51,5 +51,6 @@ export interface IStudent {
   localGuardian: TLocalGuardian;
   admissionSemester: Types.ObjectId;
   academicDepartment: Types.ObjectId;
+  academicFaculty: Types.ObjectId;
   isDeleted: boolean;
 }

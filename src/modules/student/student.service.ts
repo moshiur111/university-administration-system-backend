@@ -7,6 +7,8 @@ import { USER_ROLES } from '../users/user.constant';
 import { generateStudentId } from './student.utils';
 import AppError from '../../errors/AppError';
 import { Student } from './student.model';
+import { AcademicSemester } from '../academicSemester/academicSemester.model';
+import { AcademicDepartment } from '../academicDepartment/academicDepartment.model';
 
 const createStudentIntoDB = async (password: string, payload: IStudent) => {
   const session = await mongoose.startSession();
@@ -14,10 +16,31 @@ const createStudentIntoDB = async (password: string, payload: IStudent) => {
   try {
     session.startTransaction();
 
+    // Find academic semester
+    const academicSemester = await AcademicSemester.findById(
+      payload.admissionSemester,
+    ).session(session);
+
+    if (!academicSemester) {
+      throw new AppError(400, 'Invalid academic semester');
+    }
+
+    // Find acdemic department
+    const academicDepartment = await AcademicDepartment.findById(
+      payload.academicDepartment,
+    ).session(session);
+
+    if (!academicDepartment) {
+      throw new AppError(400, 'Invalid academic department');
+    }
+
+    // Derived to avoid client-side inconsistency
+    payload.academicFaculty = academicDepartment.academicFaculty;
+
     const userData: Partial<IUser> = {
       password: password || config.default_password,
       role: USER_ROLES.STUDENT,
-      id: await generateStudentId(),
+      id: await generateStudentId(academicSemester),
     };
 
     // Create user
@@ -27,10 +50,10 @@ const createStudentIntoDB = async (password: string, payload: IStudent) => {
       throw new AppError(400, 'Failed to create user');
     }
 
-    // Create student
     payload.id = newUser[0].id;
     payload.user = newUser[0]._id;
 
+    // Create student
     const newStudent = await Student.create([payload], { session });
 
     if (!newStudent.length) {
@@ -63,11 +86,9 @@ const getSingleStudentFromDB = async (id: string) => {
 };
 
 const updateStudentIntoDB = async (id: string, payload: Partial<IStudent>) => {
-  const result = await Student.findByIdAndUpdate(
-    id,
-    payload,
-    { new: true },
-  ).populate('user');
+  const result = await Student.findByIdAndUpdate(id, payload, {
+    new: true,
+  }).populate('user');
 
   if (!result) {
     throw new AppError(404, 'Student not found');

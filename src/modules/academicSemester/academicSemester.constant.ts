@@ -1,7 +1,7 @@
 export const ACADEMIC_SEMESTER_CODES = {
-  Spring: 'SPR',
-  Summer: 'SUM',
-  Fall: 'FAL',
+  Spring: '01',
+  Summer: '02',
+  Fall: '03',
 } as const;
 
 export const ACADEMIC_SEMESTER_NAMES = ['Spring', 'Summer', 'Fall'] as const;

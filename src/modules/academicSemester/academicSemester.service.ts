@@ -9,7 +9,7 @@ import AppError from '../../errors/AppError';
 const createAcademicSemesterIntoDB = async (
   payload: Omit<IAcademicSemester, 'code' | 'isDeleted'>,
 ) => {
-  const code = `${payload.year}-${ACADEMIC_SEMESTER_CODES[payload.name]}`;
+  const code = `${ACADEMIC_SEMESTER_CODES[payload.name]}`;
 
   return await AcademicSemester.create({
     ...payload,

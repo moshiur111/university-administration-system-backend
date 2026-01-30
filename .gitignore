@@ -23,6 +23,7 @@ Thumbs.db
 # editor
 .vscode/
 .idea/
+.cursor
 
 # coverage
 coverage/

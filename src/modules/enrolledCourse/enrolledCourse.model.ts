@@ -1,5 +1,6 @@
 import { model, Schema } from 'mongoose';
 import { IEnrolledCourse } from './enrolledCourse.interface';
+import { Grade } from './enrolledCourse.constant';
 
 const enrolledCourseSchema = new Schema<IEnrolledCourse>(
   {
@@ -49,9 +50,12 @@ const enrolledCourseSchema = new Schema<IEnrolledCourse>(
     },
     courseMarks: {
       type: Schema.Types.Mixed,
+      default: {},
     },
     grade: {
       type: String,
+      enum: Grade,
+      default: 'NA',
     },
     gradePoints: {
       type: Number,

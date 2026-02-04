@@ -15,6 +15,9 @@ const config = {
   jwtAccessSecret: process.env.JWT_ACCESS_SECRET as string,
   jwtAccessExpiresIn: process.env
     .JWT_ACCESS_EXPIRES_IN as SignOptions['expiresIn'],
+  super_admin_id: process.env.SUPER_ADMIN_ID,
+  super_admin_email: process.env.SUPER_ADMIN_EMAIL,
+  super_admin_password: process.env.SUPER_ADMIN_PASSWORD,
 };
 
 export default config;

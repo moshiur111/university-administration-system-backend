@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose';
 import { IAdmin, TUserName } from './admin.interface';
-import { BloodGroup, Gender } from './admin.constant';
+import { AdminType, AdminTypeEnum, BloodGroup, Gender } from './admin.constant';
 
 const userNameSchema = new Schema<TUserName>({
   firstName: {
@@ -83,6 +83,14 @@ const adminSchema = new Schema<IAdmin>(
     },
     profileImg: {
       type: String,
+    },
+    adminType: {
+      type: String,
+      enum: {
+        values: AdminTypeEnum,
+        message: '{VALUE} is not a valid admin type',
+      },
+      default: AdminType.ADMIN,
     },
     isDeleted: {
       type: Boolean,

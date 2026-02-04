@@ -18,6 +18,8 @@ export type TBloodGroup =
   | 'O+'
   | 'O-';
 
+export type TAdminType = 'super_admin' | 'admin';
+
 export interface IAdmin {
   id: string;
   user: Types.ObjectId;
@@ -32,5 +34,6 @@ export interface IAdmin {
   presentAddress: string;
   permanentAddress: string;
   profileImg?: string;
+  adminType: TAdminType;
   isDeleted: boolean;
 }

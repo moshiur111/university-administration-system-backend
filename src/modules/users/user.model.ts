@@ -11,6 +11,11 @@ const userSchema = new Schema<IUser, UserModel>(
       required: true,
       unique: true,
     },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     role: {
       type: String,
       enum: Object.values(USER_ROLES),

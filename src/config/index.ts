@@ -8,13 +8,16 @@ dotenv.config({
 
 const config = {
   port: process.env.PORT || 5000,
-  nodeEnv: process.env.NODE_ENV || 'development',
+  node_env: process.env.NODE_ENV || 'development',
   databaseUrl: process.env.DATABASE_URL,
   bcrypt_salt_rounds: process.env.BCRYPT_SALT_ROUNDS,
   default_password: process.env.DEFAULT_PASSWORD,
-  jwtAccessSecret: process.env.JWT_ACCESS_SECRET as string,
-  jwtAccessExpiresIn: process.env
+  jwt_access_secret: process.env.JWT_ACCESS_SECRET as string,
+  jwt_access_expires_in: process.env
     .JWT_ACCESS_EXPIRES_IN as SignOptions['expiresIn'],
+  jwt_refresh_secret: process.env.JWT_REFRESH_SECRET as string,
+  jwt_refresh_expires_in: process.env
+    .JWT_REFRESH_EXPIRES_IN as SignOptions['expiresIn'],
   super_admin_id: process.env.SUPER_ADMIN_ID,
   super_admin_email: process.env.SUPER_ADMIN_EMAIL,
   super_admin_password: process.env.SUPER_ADMIN_PASSWORD,

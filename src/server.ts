@@ -2,12 +2,15 @@ import app from './app';
 import config from './config';
 import { Server } from 'http';
 import connectDB from './config/database';
+import seedSuperAdmin from './modules/admin/admin.seed';
 
 let server: Server;
 
 const startServer = async () => {
   try {
     await connectDB();
+
+    await seedSuperAdmin();
 
     server = app.listen(config.port, () => {
       console.log(`Server is running or port ${config.port}`);

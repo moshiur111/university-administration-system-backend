@@ -1,4 +1,4 @@
-import jwt, { Secret, SignOptions } from 'jsonwebtoken';
+import jwt, { JwtPayload, Secret, SignOptions } from 'jsonwebtoken';
 import { UserRoles } from '../users/user.constant';
 
 export const createToken = (
@@ -7,4 +7,8 @@ export const createToken = (
   expiresIn: SignOptions['expiresIn'],
 ) => {
   return jwt.sign(jwtPayload, secret, { expiresIn });
+};
+
+export const verifyToken = (token: string, secret: Secret) => {
+  return jwt.verify(token, secret) as JwtPayload;
 };

@@ -1,41 +1,140 @@
+import { JwtPayload, verify } from 'jsonwebtoken';
 import config from '../../config';
 import AppError from '../../errors/AppError';
 import { User } from '../users/user.model';
 import { TLoginUser } from './auth.interface';
-import { createToken } from './auth.utils';
+import { createToken, verifyToken } from './auth.utils';
+import bcrypt from 'bcrypt';
 
 const loginUser = async (payload: TLoginUser) => {
-  // Check if the user is exist
   const user = await User.isUserExistsByCustomId(payload?.id);
+
   if (!user) {
-    throw new AppError(404, 'This user is not found');
+    throw new AppError(401, 'Invalid credentials');
   }
 
-  // Check if the user is already deleted
-  if (await User.isUserDeleted(payload?.id)) {
-    throw new AppError(403, 'This user is deleted');
+  if (user.isDeleted) {
+    throw new AppError(403, 'User is deleted');
   }
 
-  // Check if the user is blocked
-  if (await User.userStatus(payload?.id)) {
-    throw new AppError(403, 'This user is blocked');
+  if (user.status === 'blocked') {
+    throw new AppError(403, 'User is blocked');
   }
 
-  //   Check if the password is correct
-  if (!(await User.isPasswordMatched(payload?.password, user.password))) {
-    throw new AppError(403, 'This password is not matched');
+  const isPasswordMatched = await User.isPasswordMatched(
+    payload?.password,
+    user.password,
+  );
+
+  if (!isPasswordMatched) {
+    throw new AppError(401, 'Invalid credentials');
   }
 
-  // Create token and send to the client
   const jwtPayload = {
-    userId: user.id,
+    userId: user.id, // Custom ID
     role: user.role,
   };
 
   const accessToken = createToken(
     jwtPayload,
-    config.jwtAccessSecret,
-    config.jwtAccessExpiresIn,
+    config.jwt_access_secret,
+    config.jwt_access_expires_in,
+  );
+
+  const refreshToken = createToken(
+    jwtPayload,
+    config.jwt_refresh_secret,
+    config.jwt_refresh_expires_in,
+  );
+
+  return {
+    accessToken,
+    refreshToken,
+    needsPasswordChange: user.needsPasswordChange,
+  };
+};
+
+const changePassword = async (
+  userData: JwtPayload,
+  payload: { oldPassword: string; newPassword: string },
+) => {
+  const user = await User.isUserExistsByCustomId(userData.userId);
+
+  if (!user) {
+    throw new AppError(404, 'User not found');
+  }
+
+  if (user.isDeleted) {
+    throw new AppError(403, 'User is deleted');
+  }
+
+  if (user.status === 'blocked') {
+    throw new AppError(403, 'User is blocked');
+  }
+
+  const isPasswordMatched = await User.isPasswordMatched(
+    payload.oldPassword,
+    user.password,
+  );
+
+  if (!isPasswordMatched) {
+    throw new AppError(401, 'Invalid credentials');
+  }
+
+  const hashedPassword = await bcrypt.hash(
+    payload.newPassword,
+    Number(config.bcrypt_salt_rounds),
+  );
+
+  await User.findOneAndUpdate(
+    {
+      id: userData.userId,
+      role: userData.role,
+    },
+    {
+      password: hashedPassword,
+      needsPasswordChange: false,
+      passwordChangedAt: new Date(),
+    },
+  );
+  return null;
+};
+
+const refreshToken = async (token: string) => {
+  const decoded = verifyToken(token, config.jwt_refresh_secret);
+
+  const { userId, iat } = decoded;
+
+  const user = await User.isUserExistsByCustomId(userId);
+
+  if (!user) {
+    throw new AppError(404, 'User not found');
+  }
+
+  if (user.isDeleted) {
+    throw new AppError(403, 'User is deleted');
+  }
+
+  if (user.status === 'blocked') {
+    throw new AppError(403, 'User is blocked');
+  }
+
+  if (
+    user.passwordChangedAt &&
+    User.isJWTIssuedBeforePasswordChange(user.passwordChangedAt, iat as number)
+  ) {
+    throw new AppError(401, 'Password changed, please login again');
+  }
+
+  const jwtPayload = {
+    userId: user.id, // Custom ID
+    role: user.role,
+  };
+
+  const accessToken = createToken(
+    jwtPayload,
+    config.jwt_access_secret,
+    config.jwt_access_expires_in,
   );
 
   return {
@@ -45,4 +144,6 @@ const loginUser = async (payload: TLoginUser) => {
 
 export const AuthServices = {
   loginUser,
+  changePassword,
+  refreshToken,
 };

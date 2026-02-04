@@ -14,7 +14,7 @@ const auth = () => {
       throw new AppError(401, 'You are not authorized');
     }
 
-    const decode = jwt.verify(token, config.jwtAccessSecret) as JwtPayload;
+    const decode = jwt.verify(token, config.jwt_access_secret) as JwtPayload;
 
     // console.log(decode);
     const { userId, _role, _iat } = decode;

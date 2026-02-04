@@ -21,4 +21,9 @@ export interface UserModel extends Model<IUser> {
   isUserExistsByCustomId(id: string): Promise<IUser>;
   isUserDeleted(id: string): Promise<boolean>;
   userStatus(id: string): Promise<IUser['status']>;
+
+  isJWTIssuedBeforePasswordChange(
+    passwordChangedTimeStamp: Date,
+    jwtIssuedTimeStamp: number,
+  ): boolean;
 }

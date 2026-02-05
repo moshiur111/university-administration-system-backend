@@ -1,10 +1,11 @@
-import { JwtPayload, verify } from 'jsonwebtoken';
+import { JwtPayload } from 'jsonwebtoken';
 import config from '../../config';
 import AppError from '../../errors/AppError';
 import { User } from '../users/user.model';
 import { TLoginUser } from './auth.interface';
 import { createToken, verifyToken } from './auth.utils';
 import bcrypt from 'bcrypt';
+import sendEmail from '../../utils/sendEmail';
 
 const loginUser = async (payload: TLoginUser) => {
   const user = await User.isUserExistsByCustomId(payload?.id);
@@ -142,8 +143,81 @@ const refreshToken = async (token: string) => {
   };
 };
 
+const forgotPassword = async (id: string) => {
+  const user = await User.isUserExistsByCustomId(id);
+
+  if (!user) {
+    throw new AppError(404, 'User not found');
+  }
+
+  if (user.isDeleted) {
+    throw new AppError(403, 'User is deleted');
+  }
+
+  if (user.status === 'blocked') {
+    throw new AppError(403, 'User is blocked');
+  }
+
+  const jwtPayload = {
+    userId: user.id, // Custom ID
+    role: user.role,
+  };
+
+  const resetToken = createToken(jwtPayload, config.jwt_access_secret, '10m');
+
+  const resetUILink = `${config.reset_password_ui_link}?id=${user.id}&token=${resetToken}`;
+
+  sendEmail(user.email, resetUILink);
+
+  console.log(resetUILink);
+};
+
+const resetPassword = async (
+  token: string,
+  payload: { id: string; newPassword: string },
+) => {
+  const user = await User.isUserExistsByCustomId(payload.id);
+
+  if (!user) {
+    throw new AppError(404, 'User not found');
+  }
+
+  if (user.isDeleted) {
+    throw new AppError(403, 'User is deleted');
+  }
+
+  if (user.status === 'blocked') {
+    throw new AppError(403, 'User is blocked');
+  }
+
+  const decoded = verifyToken(token, config.jwt_access_secret);
+
+  if (decoded.userId !== payload.id) {
+    throw new AppError(401, 'Unauthorized');
+  }
+
+  const newHashedPassword = await bcrypt.hash(
+    payload.newPassword,
+    Number(config.bcrypt_salt_rounds),
+  );
+
+  await User.findOneAndUpdate(
+    {
+      id: decoded.userId,
+      role: decoded.role,
+    },
+    {
+      password: newHashedPassword,
+      needsPasswordChange: false,
+      passwordChangedAt: new Date(),
+    },
+  );
+};
+
 export const AuthServices = {
   loginUser,
   changePassword,
   refreshToken,
+  forgotPassword,
+  resetPassword,
 };

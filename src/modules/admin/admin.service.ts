@@ -9,18 +9,17 @@ import { Admin } from './admin.model';
 import { USER_ROLES } from '../users/user.constant';
 
 const createAdminIntoDB = async (password: string, payload: IAdmin) => {
-  const userData: Partial<IUser> = {};
-
-  userData.password = password || config.default_password;
-
-  userData.role = USER_ROLES.ADMIN;
-
   const session = await mongoose.startSession();
 
   try {
     session.startTransaction();
 
-    userData.id = await generateAdminId();
+    const userData: Partial<IUser> = {
+      password: password || config.default_password,
+      role: USER_ROLES.ADMIN,
+      id: await generateAdminId(),
+      email: payload.email,
+    };
 
     const newUser = await User.create([userData], { session });
 

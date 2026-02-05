@@ -18,6 +18,7 @@ const createFacultyIntoDB = async (password: string, payload: IFaculty) => {
       password: password || config.default_password,
       role: USER_ROLES.FACULTY,
       id: await generateFacultyId(),
+      email: payload.email,
     };
 
     // Create user

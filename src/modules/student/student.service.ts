@@ -41,6 +41,7 @@ const createStudentIntoDB = async (password: string, payload: IStudent) => {
       password: password || config.default_password,
       role: USER_ROLES.STUDENT,
       id: await generateStudentId(academicSemester),
+      email: payload.email,
     };
 
     // Create user

@@ -5,13 +5,14 @@ import { USER_ROLES } from '../users/user.constant';
 import validateRequest from '../../middlewares/validateRequest';
 import { AdminValidations } from './admin.validation';
 import { AdminControllers } from './admin.controller';
+import requireSuperAdmin from '../../middlewares/requireSuperAdmin';
 
 const router = Router();
 
 router.post(
   '/create-admin',
-  //   auth(),
-  //   authorize(USER_ROLES.ADMIN),
+  auth(),
+  requireSuperAdmin,
   validateRequest(AdminValidations.createAdminValidationSchema),
   AdminControllers.createAdmin,
 );
@@ -19,16 +20,12 @@ router.post(
 router.patch(
   '/:id',
   auth(),
-  authorize(USER_ROLES.ADMIN),
+  requireSuperAdmin,
+  validateRequest(AdminValidations.updateAdminValidationSchema),
   AdminControllers.updateAdmin,
 );
 
-router.delete(
-  '/:id',
-  auth(),
-  authorize(USER_ROLES.ADMIN),
-  AdminControllers.deleteAdmin,
-);
+router.delete('/:id', auth(), requireSuperAdmin, AdminControllers.deleteAdmin);
 
 router.get(
   '/:id',
@@ -41,6 +38,7 @@ router.get(
   '/',
   auth(),
   authorize(USER_ROLES.ADMIN),
+  // requireSuperAdmin,
   AdminControllers.getAllAdmins,
 );
 

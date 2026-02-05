@@ -21,6 +21,7 @@ const config = {
   super_admin_id: process.env.SUPER_ADMIN_ID,
   super_admin_email: process.env.SUPER_ADMIN_EMAIL,
   super_admin_password: process.env.SUPER_ADMIN_PASSWORD,
+  reset_password_ui_link: process.env.RESET_PASSWORD_UI_LINK,
 };
 
 export default config;

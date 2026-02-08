@@ -6,6 +6,7 @@ const createStudent = catchAsync(async (req, res) => {
   const { password, student: studentData } = req.body;
 
   const newStudent = await StudentServices.createStudentIntoDB(
+    req.file,
     password,
     studentData,
   );
@@ -54,10 +55,9 @@ const updateStudent = catchAsync(async (req, res) => {
   });
 });
 
-
-const  deleteStudent = catchAsync(async (req, res) => {
+const deleteStudent = catchAsync(async (req, res) => {
   const { id } = req.params as { id: string };
-  const deletedStudent = await StudentServices.deleteStudentFromDB(id); 
+  const deletedStudent = await StudentServices.deleteStudentFromDB(id);
   sendResponse(res, {
     statusCode: 200,
     success: true,

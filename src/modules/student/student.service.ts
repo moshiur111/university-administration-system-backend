@@ -9,8 +9,13 @@ import AppError from '../../errors/AppError';
 import { Student } from './student.model';
 import { AcademicSemester } from '../academicSemester/academicSemester.model';
 import { AcademicDepartment } from '../academicDepartment/academicDepartment.model';
+import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
 
-const createStudentIntoDB = async (password: string, payload: IStudent) => {
+const createStudentIntoDB = async (
+  file: any,
+  password: string,
+  payload: IStudent,
+) => {
   const session = await mongoose.startSession();
 
   try {
@@ -44,6 +49,11 @@ const createStudentIntoDB = async (password: string, payload: IStudent) => {
       email: payload.email,
     };
 
+    const imageName = `${userData.id}${payload.name.firstName}`;
+
+    // send Image to cloudinary
+    const {secure_url} = await sendImageToCloudinary(imageName, file.path);
+
     // Create user
     const newUser = await User.create([userData], { session });
 
@@ -53,6 +63,7 @@ const createStudentIntoDB = async (password: string, payload: IStudent) => {
 
     payload.id = newUser[0].id;
     payload.user = newUser[0]._id;
+    payload.profileImg = secure_url;
 
     // Create student
     const newStudent = await Student.create([payload], { session });

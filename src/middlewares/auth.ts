@@ -1,44 +1,52 @@
 import { NextFunction, Request, Response } from 'express';
-import catchAsync from '../utils/catchAsync';
-import AppError from '../errors/AppError';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import config from '../config';
+import AppError from '../errors/AppError';
 import { User } from '../modules/users/user.model';
+import catchAsync from '../utils/catchAsync';
 
 const auth = () => {
-  return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.headers.authorization;
-    // console.log('token: ', token);
+  return catchAsync(
+    async (req: Request, _res: Response, next: NextFunction) => {
+      const authorizationHeader = req.headers.authorization;
 
-    if (!token) {
-      throw new AppError(401, 'You are not authorized');
-    }
+      if (!authorizationHeader) {
+        throw new AppError(401, 'You are not authorized');
+      }
 
-    const decode = jwt.verify(token, config.jwt_access_secret) as JwtPayload;
+      if (!authorizationHeader.startsWith('Bearer ')) {
+        throw new AppError(401, 'Invalid token format');
+      }
 
-    // console.log(decode);
-    const { userId, _role, _iat } = decode;
+      const token = authorizationHeader.split(' ')[1]?.trim();
 
-    // Check if the user is exist
-    const user = await User.isUserExistsByCustomId(userId);
-    if (!user) {
-      throw new AppError(404, 'User is not found');
-    }
+      if (!token) {
+        throw new AppError(401, 'Invalid token');
+      }
 
-    const isDeleted = user.isDeleted;
-    if (isDeleted) {
-      throw new AppError(403, 'User is deleted');
-    }
+      const decoded = jwt.verify(token, config.jwt_access_secret) as JwtPayload;
 
-    const userStatus = user.status;
-    if (userStatus == 'blocked') {
-      throw new AppError(403, 'User is blocked');
-    }
+      const { userId } = decoded;
 
-    req.user = decode;
+      const user = await User.isUserExistsByCustomId(userId);
 
-    next();
-  });
+      if (!user) {
+        throw new AppError(404, 'User is not found');
+      }
+
+      if (user.isDeleted) {
+        throw new AppError(403, 'User is deleted');
+      }
+
+      if (user.status === 'blocked') {
+        throw new AppError(403, 'User is blocked');
+      }
+
+      req.user = decoded;
+
+      next();
+    },
+  );
 };
 
 export default auth;

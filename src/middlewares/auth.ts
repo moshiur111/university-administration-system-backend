@@ -24,9 +24,19 @@ const auth = () => {
         throw new AppError(401, 'Invalid token');
       }
 
-      const decoded = jwt.verify(token, config.jwt_access_secret) as JwtPayload;
+      let decoded: JwtPayload;
+
+      try {
+        decoded = jwt.verify(token, config.jwt_access_secret) as JwtPayload;
+      } catch {
+        throw new AppError(401, 'You are not authorized');
+      }
 
       const { userId } = decoded;
+
+      if (!userId) {
+        throw new AppError(401, 'Invalid token payload');
+      }
 
       const user = await User.isUserExistsByCustomId(userId);
 

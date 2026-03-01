@@ -1,8 +1,8 @@
-import { model, Schema } from 'mongoose';
-import { IUser, UserModel } from './user.interface';
-import { USER_ROLES, USER_STATUS } from './user.constant';
 import bcrypt from 'bcrypt';
+import { model, Schema } from 'mongoose';
 import config from '../../config';
+import { USER_ROLES, USER_STATUS } from './user.constant';
+import { IUser, UserModel } from './user.interface';
 
 const userSchema = new Schema<IUser, UserModel>(
   {
@@ -86,6 +86,20 @@ userSchema.statics.isPasswordMatched = async function (
   hashedPassword: string,
 ) {
   return bcrypt.compare(plainTextPassword, hashedPassword);
+};
+
+// Check if JWT issued before password change
+userSchema.statics.isJWTIssuedBeforePasswordChange = function (
+  passwordChangedTimeStamp: Date,
+  jwtIssuedTimeStamp: number,
+) {
+  if (!passwordChangedTimeStamp) return false;
+
+  const passwordChangedTime = Math.floor(
+    new Date(passwordChangedTimeStamp).getTime() / 1000,
+  );
+
+  return passwordChangedTime > jwtIssuedTimeStamp;
 };
 
 export const User = model<IUser, UserModel>('User', userSchema);

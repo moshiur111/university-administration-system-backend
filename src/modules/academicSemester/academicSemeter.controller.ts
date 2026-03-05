@@ -1,6 +1,6 @@
 import catchAsync from '../../utils/catchAsync';
-import { AcademicSemesterServices } from './academicSemester.service';
 import sendResponse from '../../utils/sendResponse';
+import { AcademicSemesterServices } from './academicSemester.service';
 
 const createAcademicSemester = catchAsync(async (req, res) => {
   const result = await AcademicSemesterServices.createAcademicSemesterIntoDB(

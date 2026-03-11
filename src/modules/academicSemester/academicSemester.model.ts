@@ -1,10 +1,10 @@
 import { model, Query, Schema } from 'mongoose';
-import { IAcademicSemester } from './academicSemester.interface';
 import {
   ACADEMIC_SEMESTER_NAMES,
   MONTH_MAP,
   SEMESTER_MONTH_RANGE,
 } from './academicSemester.constant';
+import { IAcademicSemester } from './academicSemester.interface';
 
 const academicSemesterSchema = new Schema<IAcademicSemester>(
   {
@@ -20,7 +20,6 @@ const academicSemesterSchema = new Schema<IAcademicSemester>(
     code: {
       type: String,
       required: true,
-      unique: true,
     },
     isDeleted: {
       type: Boolean,
@@ -29,19 +28,24 @@ const academicSemesterSchema = new Schema<IAcademicSemester>(
   },
   {
     timestamps: true,
+    id: false,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   },
 );
 
-academicSemesterSchema.virtual('startMonthName').get(function () {
+// Compound unique constrant
+academicSemesterSchema.index({ name: 1, year: 1 }, { unique: true });
+
+academicSemesterSchema.virtual('startMonth').get(function () {
   return MONTH_MAP[SEMESTER_MONTH_RANGE[this.name].startMonth];
 });
 
-academicSemesterSchema.virtual('endMonthName').get(function () {
+academicSemesterSchema.virtual('endMonth').get(function () {
   return MONTH_MAP[SEMESTER_MONTH_RANGE[this.name].endMonth];
 });
 
+// soft delete filter
 academicSemesterSchema.pre(/^find/, function (this: Query<any, any>) {
   this.where({ isDeleted: { $ne: true } });
 });

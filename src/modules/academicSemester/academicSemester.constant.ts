@@ -26,3 +26,5 @@ export const MONTH_MAP = {
   11: 'November',
   12: 'December',
 } as const;
+
+export const AcademicSemesterSearchableFields = ['name', 'year'];

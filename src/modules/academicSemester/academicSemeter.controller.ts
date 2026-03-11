@@ -1,6 +1,6 @@
 import catchAsync from '../../utils/catchAsync';
-import { AcademicSemesterServices } from './academicSemester.service';
 import sendResponse from '../../utils/sendResponse';
+import { AcademicSemesterServices } from './academicSemester.service';
 
 const createAcademicSemester = catchAsync(async (req, res) => {
   const result = await AcademicSemesterServices.createAcademicSemesterIntoDB(
@@ -16,13 +16,16 @@ const createAcademicSemester = catchAsync(async (req, res) => {
 });
 
 const getAllAcademicSemesters = catchAsync(async (req, res) => {
-  const result = await AcademicSemesterServices.getAllAcademicSemestersFromDB();
+  const result = await AcademicSemesterServices.getAllAcademicSemestersFromDB(
+    req.query,
+  );
 
   sendResponse(res, {
     statusCode: 200,
     success: true,
     message: 'Academic Semesters retrieved successfully',
-    data: result,
+    meta: result.meta,
+    data: result.result,
   });
 });
 

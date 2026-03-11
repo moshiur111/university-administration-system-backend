@@ -4,7 +4,7 @@ import { ACADEMIC_SEMESTER_NAMES } from './academicSemester.constant';
 const createAcademicSemesterValidationSchema = z.object({
   body: z.object({
     name: z.enum(ACADEMIC_SEMESTER_NAMES),
-    year: z.number().min(2000),
+    year: z.coerce.number().min(2000),
   }),
 });
 

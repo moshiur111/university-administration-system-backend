@@ -1,18 +1,18 @@
 import mongoose from 'mongoose';
-import { IStudent } from './student.interface';
-import { User } from '../users/user.model';
-import { IUser } from '../users/user.interface';
 import config from '../../config';
-import { USER_ROLES } from '../users/user.constant';
-import { generateStudentId } from './student.utils';
 import AppError from '../../errors/AppError';
-import { Student } from './student.model';
-import { AcademicSemester } from '../academicSemester/academicSemester.model';
-import { AcademicDepartment } from '../academicDepartment/academicDepartment.model';
 import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
+import { AcademicDepartment } from '../academicDepartment/academicDepartment.model';
+import { AcademicSemester } from '../academicSemester/academicSemester.model';
+import { USER_ROLES } from '../users/user.constant';
+import { IUser } from '../users/user.interface';
+import { User } from '../users/user.model';
+import { IStudent } from './student.interface';
+import { Student } from './student.model';
+import { generateStudentId } from './student.utils';
 
 const createStudentIntoDB = async (
-  file: any,
+  file: Express.Multer.File | undefined,
   password: string,
   payload: IStudent,
 ) => {
@@ -39,7 +39,7 @@ const createStudentIntoDB = async (
       throw new AppError(400, 'Invalid academic department');
     }
 
-    // Derived to avoid client-side inconsistency
+    // Derive faculty from department
     payload.academicFaculty = academicDepartment.academicFaculty;
 
     const userData: Partial<IUser> = {
@@ -49,10 +49,14 @@ const createStudentIntoDB = async (
       email: payload.email,
     };
 
-    const imageName = `${userData.id}${payload.name.firstName}`;
+    // Upload image if file exists
+    let profileImg = '';
 
-    // send Image to cloudinary
-    const {secure_url} = await sendImageToCloudinary(imageName, file.path);
+    if (file?.path) {
+      const imageName = `${userData.id}${payload.name.firstName}`;
+      const { secure_url } = await sendImageToCloudinary(imageName, file.path);
+      profileImg = secure_url;
+    }
 
     // Create user
     const newUser = await User.create([userData], { session });
@@ -63,7 +67,7 @@ const createStudentIntoDB = async (
 
     payload.id = newUser[0].id;
     payload.user = newUser[0]._id;
-    payload.profileImg = secure_url;
+    payload.profileImg = profileImg;
 
     // Create student
     const newStudent = await Student.create([payload], { session });
@@ -73,6 +77,7 @@ const createStudentIntoDB = async (
     }
 
     await session.commitTransaction();
+
     return newStudent[0];
   } catch (err) {
     await session.abortTransaction();

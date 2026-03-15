@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import QueryBuilder from '../../builder/QueryBuilder';
 import config from '../../config';
 import AppError from '../../errors/AppError';
 import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
@@ -7,6 +8,7 @@ import { AcademicSemester } from '../academicSemester/academicSemester.model';
 import { USER_ROLES } from '../users/user.constant';
 import { IUser } from '../users/user.interface';
 import { User } from '../users/user.model';
+import { studentSearchableFields } from './student.constant';
 import { IStudent } from './student.interface';
 import { Student } from './student.model';
 import { generateStudentId } from './student.utils';
@@ -87,9 +89,28 @@ const createStudentIntoDB = async (
   }
 };
 
-const getAllStudentsFromDB = async () => {
-  const result = await Student.find({ isDeleted: false }).populate('user');
-  return result;
+const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
+  const studentQuery = new QueryBuilder(
+    Student.find()
+      .populate('user')
+      .populate('admissionSemester')
+      .populate('academicDepartment')
+      .populate('academicFaculty'),
+    query,
+  )
+    .search(studentSearchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+
+  const meta = await studentQuery.countTotal();
+  const result = await studentQuery.modelQuery;
+
+  return {
+    meta,
+    result,
+  };
 };
 
 const getSingleStudentFromDB = async (id: string) => {

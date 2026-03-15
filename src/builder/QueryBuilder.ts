@@ -10,10 +10,10 @@ class QueryBuilder<T> {
   }
 
   search(searchableFields: string[]) {
-    const searchTerm = this.query.searchTerm;
+    const searchTerm = this.query.searchTerm as string;
 
     if (searchTerm) {
-      this.modelQuery = this.modelQuery.find({
+      this.modelQuery = this.modelQuery.where({
         $or: searchableFields.map((field) => ({
           [field]: {
             $regex: searchTerm,
@@ -39,7 +39,7 @@ class QueryBuilder<T> {
 
     excludedFields.forEach((field) => delete queryObj[field]);
 
-    this.modelQuery = this.modelQuery.find(queryObj);
+    this.modelQuery = this.modelQuery.where(queryObj);
 
     return this;
   }
@@ -67,12 +67,16 @@ class QueryBuilder<T> {
       (this.query.fields as string)?.split(',').join(' ') || '-__v';
 
     this.modelQuery = this.modelQuery.select(fields);
+
     return this;
   }
 
   async countTotal() {
     const totalQueries = this.modelQuery.getFilter();
-    const total = await this.modelQuery.model.countDocuments(totalQueries);
+    const total = await this.modelQuery.model.countDocuments({
+      ...totalQueries,
+      isDeleted: { $ne: true },
+    });
 
     const page = Number(this.query.page) || 1;
     const limit = Number(this.query.limit) || 10;

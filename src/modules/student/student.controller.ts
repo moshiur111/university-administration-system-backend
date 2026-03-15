@@ -20,12 +20,13 @@ const createStudent = catchAsync(async (req, res) => {
 });
 
 const getAllStudent = catchAsync(async (req, res) => {
-  const students = await StudentServices.getAllStudentsFromDB();
+  const result = await StudentServices.getAllStudentsFromDB(req.query);
   sendResponse(res, {
     statusCode: 200,
     success: true,
     message: 'Students retrieved successfully',
-    data: students,
+    meta: result.meta,
+    data: result.result,
   });
 });
 

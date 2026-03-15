@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose';
+import softDeletePlugin from '../../plugins/softDeletePlugin';
 import {
   IStudent,
   TGuardian,
@@ -172,5 +173,11 @@ const studentSchema = new Schema<IStudent>(
     },
   },
 );
+
+studentSchema.virtual('fullName').get(function () {
+  return `${this.name.firstName} ${this.name.middleName} ${this.name.lastName}`;
+});
+
+studentSchema.plugin(softDeletePlugin);
 
 export const Student = model<IStudent>('Student', studentSchema);

@@ -1,4 +1,5 @@
 import z from 'zod';
+import { SEMESTER_REGISTRATION_STATUS } from './semesterRegistration.constant';
 
 const createSemesterRegistrationValidationSchema = z.object({
   body: z.object({
@@ -17,6 +18,13 @@ const updateSemesterRegistrationValidationSchema = z.object({
     endDate: z.string().optional(),
     minCredit: z.number().optional(),
     maxCredit: z.number().optional(),
+    status: z
+      .enum([
+        SEMESTER_REGISTRATION_STATUS.UPCOMING,
+        SEMESTER_REGISTRATION_STATUS.ONGOING,
+        SEMESTER_REGISTRATION_STATUS.ENDED,
+      ])
+      .optional(),
   }),
 });
 

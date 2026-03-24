@@ -18,16 +18,15 @@ const courseSchema = new Schema<ICourse>(
       type: String,
       required: true,
       unique: true,
+      trim: true,
     },
     prefix: {
       type: String,
       required: true,
-      unique: true,
     },
     code: {
       type: Number,
       required: true,
-      unique: true,
     },
     credits: {
       type: Number,

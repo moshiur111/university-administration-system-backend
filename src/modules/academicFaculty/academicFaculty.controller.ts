@@ -16,13 +16,16 @@ const createAcademicFaculty = catchAsync(async (req, res) => {
 });
 
 const getAllAcademicFaculties = catchAsync(async (req, res) => {
-  const result = await AcademicFacultyService.getAllAcademicFacultiesFromDB();
+  const result = await AcademicFacultyService.getAllAcademicFacultiesFromDB(
+    req.query,
+  );
 
   sendResponse(res, {
     statusCode: 200,
     success: true,
     message: 'Academic Faculties retrieved successfully',
-    data: result,
+    meta: result.meta,
+    data: result.result,
   });
 });
 

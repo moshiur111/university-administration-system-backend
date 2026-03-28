@@ -1,10 +1,15 @@
 import mongoose from 'mongoose';
+import QueryBuilder from '../../builder/QueryBuilder';
 import config from '../../config';
 import AppError from '../../errors/AppError';
+import { Days, TDays } from '../offeredCourse/offeredCourse.constant';
+import { OfferedCourse } from '../offeredCourse/offeredCourse.model';
+import { hasTimeConflict } from '../offeredCourse/offeredCourse.utils';
 import { USER_ROLES } from '../users/user.constant';
 import { IUser } from '../users/user.interface';
 import { User } from '../users/user.model';
-import { IFaculty } from './faculty.interface';
+import { FacultySearchableFields } from './faculty.constant';
+import { IFaculty, TFacultyQuery } from './faculty.interface';
 import { Faculty } from './faculty.model';
 import { generateFacultyId } from './faculty.utils';
 
@@ -49,10 +54,18 @@ const createFacultyIntoDB = async (password: string, payload: IFaculty) => {
   }
 };
 
-const getAllFacultyFromDB = async () => {
-  const faculties = await Faculty.find().populate('user');
+const getAllFacultyFromDB = async (query: Record<string, unknown>) => {
+  const facultyQuery = new QueryBuilder(Faculty.find(), query)
+    .search(FacultySearchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
 
-  return faculties;
+  const result = await facultyQuery.modelQuery;
+  const meta = await facultyQuery.countTotal();
+
+  return { meta, result };
 };
 
 const getSingleFacultyFromDB = async (id: string) => {
@@ -68,6 +81,7 @@ const getSingleFacultyFromDB = async (id: string) => {
 const updateFacultyIntoDB = async (id: string, payload: Partial<IFaculty>) => {
   const updatedFaculty = await Faculty.findByIdAndUpdate(id, payload, {
     new: true,
+    runValidators: true,
   }).populate('user');
 
   if (!updatedFaculty) {
@@ -75,6 +89,60 @@ const updateFacultyIntoDB = async (id: string, payload: Partial<IFaculty>) => {
   }
 
   return updatedFaculty;
+};
+
+const getEligibleFacultiesFromDB = async (query: TFacultyQuery) => {
+  const { days, startTime, endTime, semesterRegistration } = query;
+
+  // Normalize days
+  const normalizedDays: TDays[] = Array.isArray(days)
+    ? days.filter((d): d is TDays => Days.includes(d as TDays))
+    : days && Days.includes(days as TDays)
+      ? [days as TDays]
+      : [];
+
+  let baseQuery = Faculty.find({
+    isDeleted: { $ne: true },
+  });
+
+  // Availability filtering (hide busy faculty)
+  if (normalizedDays.length && startTime && endTime && semesterRegistration) {
+    const assignedSchedules = await OfferedCourse.find({
+      semesterRegistration,
+      days: { $in: normalizedDays },
+    }).select('faculty days startTime endTime');
+
+    const busyFacultyIds = assignedSchedules
+      .filter((schedule) =>
+        hasTimeConflict([schedule], {
+          days: normalizedDays,
+          startTime: startTime as string,
+          endTime: endTime as string,
+        }),
+      )
+      .map((schedule) => schedule.faculty.toString());
+
+    baseQuery = Faculty.find({
+      isDeleted: { $ne: true },
+      _id: { $nin: busyFacultyIds },
+    });
+  }
+
+  // QueryBuilder
+  const facultyQuery = new QueryBuilder(baseQuery, query)
+    .search(FacultySearchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+
+  const result = await facultyQuery.modelQuery.select(
+    'name designation academicDepartment',
+  );
+
+  const meta = await facultyQuery.countTotal();
+
+  return { meta, result };
 };
 
 const deleteFacultyFromDB = async (id: string) => {
@@ -96,5 +164,6 @@ export const FacultyServices = {
   getAllFacultyFromDB,
   getSingleFacultyFromDB,
   updateFacultyIntoDB,
+  getEligibleFacultiesFromDB,
   deleteFacultyFromDB,
 };

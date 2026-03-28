@@ -18,14 +18,15 @@ const createFaculty = catchAsync(async (req, res) => {
   });
 });
 
-const getAllFaculties = catchAsync(async (_req, res) => {
-  const faculties = await FacultyServices.getAllFacultyFromDB();
+const getAllFaculties = catchAsync(async (req, res) => {
+  const result = await FacultyServices.getAllFacultyFromDB(req.query);
 
   sendResponse(res, {
     statusCode: 200,
     success: true,
     message: 'Faculties are retrieved successfully',
-    data: faculties,
+    meta: result.meta,
+    data: result.result,
   });
 });
 
@@ -57,6 +58,17 @@ const updateFaculty = catchAsync(async (req, res) => {
   });
 });
 
+const getEligibleFaculties = catchAsync(async (req, res) => {
+  const result = await FacultyServices.getEligibleFacultiesFromDB(req.query);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Faculties are retrieved successfully',
+    data: result,
+  });
+});
+
 const deleteFaculty = catchAsync(async (req, res) => {
   const { id } = req.params as { id: string };
 
@@ -75,5 +87,6 @@ export const FacultyControllers = {
   getAllFaculties,
   getSingleFaculty,
   updateFaculty,
+  getEligibleFaculties,
   deleteFaculty,
 };

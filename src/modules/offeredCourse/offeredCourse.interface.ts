@@ -1,7 +1,6 @@
 import { Types } from 'mongoose';
 import { TDays } from './offeredCourse.constant';
 
-
 export interface IOfferedCourse {
   semesterRegistration: Types.ObjectId;
   academicSemester?: Types.ObjectId;
@@ -16,3 +15,9 @@ export interface IOfferedCourse {
   endTime: string;
   isDeleted: boolean;
 }
+
+export type TSchedule = {
+  days: TDays[];
+  startTime: string;
+  endTime: string;
+};

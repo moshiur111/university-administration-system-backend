@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import validateRequest from '../../middlewares/validateRequest';
-import { FacultyValidations } from './faculty.validation';
-import { FacultyControllers } from './faculty.controller';
-import authorize from '../../middlewares/authorize';
 import auth from '../../middlewares/auth';
+import authorize from '../../middlewares/authorize';
+import validateRequest from '../../middlewares/validateRequest';
 import { USER_ROLES } from '../users/user.constant';
+import { FacultyControllers } from './faculty.controller';
+import { FacultyValidations } from './faculty.validation';
 
 const router = Router();
 
@@ -14,6 +14,13 @@ router.post(
   authorize(USER_ROLES.ADMIN),
   validateRequest(FacultyValidations.createFacultyValidationSchema),
   FacultyControllers.createFaculty,
+);
+
+router.get(
+  '/eligible',
+  auth(),
+  authorize(USER_ROLES.ADMIN),
+  FacultyControllers.getEligibleFaculties,
 );
 
 router.get(

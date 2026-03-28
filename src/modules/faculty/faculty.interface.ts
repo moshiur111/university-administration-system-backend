@@ -35,3 +35,19 @@ export interface IFaculty {
   academicDepartment: Types.ObjectId;
   isDeleted: boolean;
 }
+
+export type TPaginationQuery = {
+  page?: number;
+  limit?: number;
+  sort?: string;
+  fields?: string;
+};
+
+export type TFacultyQuery = TPaginationQuery & {
+  academicDepartment?: string;
+  days?: string | string[];
+  startTime?: string;
+  endTime?: string;
+  semesterRegistration?: string;
+  searchTerm?: string;
+};

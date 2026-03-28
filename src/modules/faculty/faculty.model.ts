@@ -1,6 +1,6 @@
-import { model, Schema } from 'mongoose';
-import { IFaculty, TUserName } from './faculty.interface';
+import { model, Query, Schema } from 'mongoose';
 import { BloodGroup, Gender } from './faculty.constant';
+import { IFaculty, TUserName } from './faculty.interface';
 
 const userNameSchema = new Schema<TUserName>({
   firstName: {
@@ -105,6 +105,10 @@ const facultySchema = new Schema<IFaculty>(
 
 facultySchema.virtual('fullName').get(function fullName() {
   return `${this.name.firstName} ${this.name.middleName ? this.name.middleName + ' ' : ''}${this.name.lastName}`;
+});
+
+facultySchema.pre(/^find/, function (this: Query<IFaculty[], IFaculty>) {
+  this.where({ isDeleted: { $ne: true } });
 });
 
 export const Faculty = model<IFaculty>('Faculty', facultySchema);

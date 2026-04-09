@@ -10,24 +10,19 @@ const app: Application = express();
 app.use(express.json());
 app.use(cookieParser());
 
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:5174',
-  'https://university-administration-system-fr.vercel.app',
-];
-
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
+    origin: [
+      'http://localhost:5173',
+      'http://localhost:5174',
+      'https://university-administration-system-fr.vercel.app',
+    ],
     credentials: true,
   }),
 );
+
+// Handle preflight request
+app.options('*', cors());
 
 // Application routes
 app.use('/api/v1', router);

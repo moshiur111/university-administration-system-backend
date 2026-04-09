@@ -13,7 +13,7 @@ app.use(cookieParser());
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
-  'https://frontend-domain.com',
+  'https://university-administration-system-fr.vercel.app',
 ];
 
 app.use(

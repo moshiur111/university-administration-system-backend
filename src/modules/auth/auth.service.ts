@@ -1,11 +1,11 @@
+import bcrypt from 'bcrypt';
 import { JwtPayload } from 'jsonwebtoken';
 import config from '../../config';
 import AppError from '../../errors/AppError';
+import sendEmail from '../../utils/sendEmail';
 import { User } from '../users/user.model';
 import { TLoginUser } from './auth.interface';
 import { createToken, verifyToken } from './auth.utils';
-import bcrypt from 'bcrypt';
-import sendEmail from '../../utils/sendEmail';
 
 const loginUser = async (payload: TLoginUser) => {
   const user = await User.isUserExistsByCustomId(payload?.id);
@@ -168,8 +168,6 @@ const forgotPassword = async (id: string) => {
   const resetUILink = `${config.reset_password_ui_link}?id=${user.id}&token=${resetToken}`;
 
   sendEmail(user.email, resetUILink);
-
-  console.log(resetUILink);
 };
 
 const resetPassword = async (

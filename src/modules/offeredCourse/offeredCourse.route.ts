@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import auth from '../../middlewares/auth';
-import { OfferedCourseValidations } from './offeredCourse.validation';
-import validateRequest from '../../middlewares/validateRequest';
-import { OfferedCourseControllers } from './offeredCourse.controller';
 import authorize from '../../middlewares/authorize';
+import validateRequest from '../../middlewares/validateRequest';
 import { USER_ROLES } from '../users/user.constant';
+import { OfferedCourseControllers } from './offeredCourse.controller';
+import { OfferedCourseValidations } from './offeredCourse.validation';
 
 const router = Router();
 
@@ -14,6 +14,19 @@ router.post(
   authorize(USER_ROLES.ADMIN),
   validateRequest(OfferedCourseValidations.createOfferedCourseValidationSchema),
   OfferedCourseControllers.createOfferedCourse,
+);
+
+router.get(
+  '/student-offered-courses',
+  auth(),
+  authorize(USER_ROLES.ADMIN, USER_ROLES.FACULTY, USER_ROLES.STUDENT),
+  OfferedCourseControllers.getStudentOfferedCourses,
+);
+router.get(
+  '/faculty-offered-courses',
+  auth(),
+  authorize(USER_ROLES.ADMIN, USER_ROLES.FACULTY),
+  OfferedCourseControllers.getFacultyOfferedCourses,
 );
 
 router.get(

@@ -1,12 +1,19 @@
 import { Router } from 'express';
 import auth from '../../middlewares/auth';
 import authorize from '../../middlewares/authorize';
-import { USER_ROLES } from '../users/user.constant';
-import { EnrolledCourseValidations } from './enrolledCourse.validation';
-import { EnrolledCourseControllers } from './enrolledCourse.controller';
 import validateRequest from '../../middlewares/validateRequest';
+import { USER_ROLES } from '../users/user.constant';
+import { EnrolledCourseControllers } from './enrolledCourse.controller';
+import { EnrolledCourseValidations } from './enrolledCourse.validation';
 
 const router = Router();
+
+router.get(
+  '/',
+  auth(),
+  authorize(USER_ROLES.ADMIN, USER_ROLES.FACULTY),
+  EnrolledCourseControllers.getAllEnrolledCourses,
+);
 
 router.post(
   '/create-enrolled-course',

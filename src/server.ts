@@ -1,6 +1,6 @@
+import { Server } from 'http';
 import app from './app';
 import config from './config';
-import { Server } from 'http';
 import connectDB from './config/database';
 import seedSuperAdmin from './modules/admin/admin.seed';
 
@@ -11,9 +11,10 @@ const startServer = async () => {
     await connectDB();
 
     await seedSuperAdmin();
+    const port = config.port || 5000;
 
-    server = app.listen(config.port, () => {
-      console.log(`Server is running or port ${config.port}`);
+    server = app.listen(port, () => {
+      console.log(`Server is running or port ${port}`);
     });
   } catch (error) {
     console.error(error);

@@ -21,9 +21,6 @@ app.use(
   }),
 );
 
-// Handle preflight request
-app.options('*', cors());
-
 // Application routes
 app.use('/api/v1', router);
 
